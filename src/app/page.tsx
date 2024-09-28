@@ -1,7 +1,8 @@
 'use client'
-import { useState, useEffect } from 'react';
 
-// Array of random search terms
+import { useState, useEffect } from 'react';
+import { styles } from '@/app/styles';
+
 const randomSearchTerms: string[] = [
   "artificial intelligence", "machine learning", "web development",
   "space exploration", "quantum computing", "climate change",
@@ -14,31 +15,37 @@ const randomSearchTerms: string[] = [
 ];
 
 export default function Home() {
-  // Type annotations for state variables
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [currentSearch, setCurrentSearch] = useState<number>(0);
 
-  // Effect hook for updating countdown timer
   useEffect(() => {
     if (countdown !== null && countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer); // Clear timer when the component unmounts
+      return () => clearTimeout(timer);
     }
   }, [countdown]);
 
-  // Function to open random Bing searches every 10 seconds
+  // Function to open each URL in a new tab and close it after 10 seconds
   const performRandomSearches = (): void => {
     setIsLoading(true);
-    setCountdown(10); // Set initial countdown for the first search
+    setCountdown(10);
 
     randomSearchTerms.forEach((term: string, index: number) => {
       setTimeout(() => {
         const url = `https://www.bing.com/search?q=${encodeURIComponent(term)}`;
-        window.open(url, '_blank');
+        const newTab = window.open(url, '_blank');
+
         setCurrentSearch(index + 1); // Update the current search count
-        setCountdown(10); // Reset the countdown timer for each search
-      }, index * 10000); // 10 seconds delay per URL
+        setCountdown(10); // Reset countdown timer for each search
+
+        // Close the tab after 10 seconds
+        setTimeout(() => {
+          if (newTab) {
+            newTab.close();
+          }
+        }, 13000); // Close the tab 13 seconds after opening
+      }, index * 10000); // Open each tab with a 10-second delay
     });
 
     // Reset loading state after all searches are done
@@ -62,34 +69,4 @@ export default function Home() {
   );
 }
 
-// Styles object for inline styling
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    textAlign: 'center',
-    marginTop: '50px',
-  },
-  title: {
-    fontSize: '2.5rem',
-    marginBottom: '20px',
-    color: '#333',
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    border: 'none',
-    color: 'white',
-    padding: '15px 32px',
-    textAlign: 'center',
-    textDecoration: 'none',
-    display: 'inline-block',
-    fontSize: '16px',
-    margin: '4px 2px',
-    cursor: 'pointer',
-    borderRadius: '8px',
-    transition: 'background-color 0.3s ease',
-  },
-  timer: {
-    marginTop: '20px',
-    fontSize: '1.5rem',
-    color: '#555',
-  }
-};
+
